@@ -1,0 +1,33 @@
+name: Daily GitHub Contribution Greener
+
+on:
+  schedule:
+    # Runs 4 times a day (00:15, 06:15, 12:15, 18:15 UTC)
+    - cron: '15 0,6,12,18 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  auto-green:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Contribution Generator for Today
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Generate 3-8 random commits for today
+          node generator.js --start $(date +%Y-%m-%d) --end $(date +%Y-%m-%d) --min 3 --max 8
+
+      - name: Push Commits
+        run: |
+          git push origin main
